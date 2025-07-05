@@ -47,14 +47,14 @@ int main(void) {
 	PIOB->PIO_PER |= (1 << 27); // Enable PIO control
 	PIOB->PIO_OER |= (1 << 27); // Enable as output	
  	
- 	for (float t = 3.5f; t <= 7.4f; t += 0.01f) {
+ 	/*for (float t = 3.5f; t <= 7.4f; t += 0.01f) {
  		Velocity = calculate_s_curve_velocity_acceleration(t);
  		frequency = 40 * Velocity;
  		processLineFollowing();
  		delay_ms(50);
  	}
 	decelerationScurve(calculate_time_from_velocity_deceleration(Velocity));
-	
+	*/
 }
 	
 				
