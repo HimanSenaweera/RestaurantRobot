@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "sam3xa.h"         
+#include "sam3xa.h"
 #include <asf.h>
 #include <math.h>
 #include "sam3xa.h"
@@ -34,10 +34,10 @@ int PID(int current_error)
 int update_pid(void){
 	// === Read sensor values ===
 	uint8_t sensors[4];
-	sensors[0] = (PIOA->PIO_PDSR & (1 << 11)) != 0;
-	sensors[1] = (PIOA->PIO_PDSR & (1 << 12)) != 0;
-	sensors[2] = (PIOA->PIO_PDSR & (1 << 13)) != 0;
-	sensors[3] = (PIOD->PIO_PDSR & (1 << 5))  != 0;
+	sensors[0] = (PIOD->PIO_PDSR & (1 << 6)) != 0;
+	sensors[1] = (PIOD->PIO_PDSR & (1 << 5)) != 0;
+	sensors[2] = (PIOD->PIO_PDSR & (1 << 2)) != 0;
+	sensors[3] = (PIOD->PIO_PDSR & (1 << 1)) != 0;
 	
 
 	// === Weights ===
@@ -63,54 +63,54 @@ int update_pid(void){
 }
 
 void processLineFollowing_deceleration(void) {
-  error = update_pid_decelaration();
-  float error_mini = (error * 0.2);
-  	if (frequency < 600) {
- 	 	leftMotorSpeed = 0;
- 		rightMotorSpeed = 0;
-  	}
- 
- 	else {
-  	leftMotorSpeed = frequency + (40 * error_mini);
-  	rightMotorSpeed = frequency- (40 * error_mini);
-  	}
-  	mdrive(leftMotorSpeed, rightMotorSpeed);
-  	delay_ms(20);
+	error = update_pid_decelaration();
+	float error_mini = (error * 0.2);
+	if (frequency < 600) {
+		leftMotorSpeed = 0;
+		rightMotorSpeed = 0;
+	}
+	
+	else {
+		leftMotorSpeed = frequency - (40 * error_mini);
+		rightMotorSpeed = frequency + (40 * error_mini);
+	}
+	mdrive(leftMotorSpeed, rightMotorSpeed);
+	delay_ms(20);
 }
 
 int update_pid_decelaration(void) {
-  uint8_t sensors[4];
-  sensors[0] = (PIOA->PIO_PDSR & (1 << 11)) != 0;
-  sensors[1] = (PIOA->PIO_PDSR & (1 << 12)) != 0;
-  sensors[2] = (PIOA->PIO_PDSR & (1 << 13)) != 0;
-  sensors[3] = (PIOD->PIO_PDSR & (1 << 5)) != 0;
- 
-  int8_t weights[4] = {-3,-1, 1, 3};
-  int16_t sum = 0;
-  uint8_t active_count = 0;
- 
-  for (int i = 0; i < 4; i++) {
-  if (sensors[i]) {
-  sum += weights[i];
-  active_count++;
-  }
-  }
- 
-  int16_t Error = 0;
-  if (active_count > 0) {
-  Error = sum / active_count;
-  }
-  int output = PID(Error);
-  return output;
+	// === Read sensor values ===
+	uint8_t sensors[4];
+	sensors[0] = (PIOD->PIO_PDSR & (1 << 6)) != 0;
+	sensors[1] = (PIOD->PIO_PDSR & (1 << 5)) != 0;
+	sensors[2] = (PIOD->PIO_PDSR & (1 << 2)) != 0;
+	sensors[3] = (PIOD->PIO_PDSR & (1 << 1)) != 0;
+	
+	int8_t weights[4] = {-3,-1, 1, 3};
+	int16_t sum = 0;
+	uint8_t active_count = 0;
+	
+	for (int i = 0; i < 4; i++) {
+		if (sensors[i]) {
+			sum += weights[i];
+			active_count++;
+		}
+	}
+	
+	int16_t Error = 0;
+	if (active_count > 0) {
+		Error = sum / active_count;
+	}
+	int output = PID(Error);
+	return output;
 }
 
 void processLineFollowing(void){
 	error=update_pid();
 	float error_mini=(error*0.2);
 
-	leftMotorSpeed=frequency+(40*error_mini);
-	rightMotorSpeed=frequency-(40*error_mini);
-	
+	leftMotorSpeed=frequency-(40*error_mini);
+	rightMotorSpeed=frequency+(40*error_mini);
 	
 	mdrive(leftMotorSpeed,rightMotorSpeed);
 	delay_ms(20);

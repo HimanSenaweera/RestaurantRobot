@@ -12,120 +12,188 @@
 #include <Scurve.h>
 
 //other
-int junction_count=0;
+
+int temp_2=0;
+int temp=0;
 int Velocity;
-int Done=0;
-void enableSwitches(void);
-void table1_notdone(void);
-void table1(void);
+void table_acceleration(void);
+void table_acceleration_2(void);
+
+void leftTurn(void);
+void rightTurn(void);
+void table_acceleration_return_2(void);
+void table_acceleration_return(void);
 
 int main(void) {
 	// Initialize the SAM system
-	sysclk_init();	
-	board_init();	
-	SystemInit();
-	SystemCoreClockUpdate();
-	init_systick();
-	init_ultrasonic();
+ 	sysclk_init();
+ 	board_init();
+ 	SystemInit();
+ 	SystemCoreClockUpdate();
+ 	init_systick();
+ 	init_ultrasonic();
 
 	//Enable the PIOA peripherals
 	PMC->PMC_PCER0 = (1<<11);
 	PMC->PMC_PCER0 = (1<<12);
 	PMC->PMC_PCER0 = (1<<13);
 
-
-	//left motor
- 	leftMotorPIOEnable();
- 	PIOC->PIO_CODR = (1 << LEFT_MOTOR_DIR); // Set Direction //Clear Output Data Register
-	
-	//Right motor
-	rightMotorPIOEnable();
-	PIOC->PIO_SODR = (1 << RIGHT_MOTOR_DIR); // Set Direction //Set Output Data Register
+	//Enable the clock for PIOC (Peripheral I/O Controller B)
+	PMC->PMC_PCER0 |= (1 << ID_PIOC);
 	
 	enablePWMPeripheral();
 	enableSensorArray();
-	PIOB->PIO_PER |= (1 << 27); // Enable PIO control
-	PIOB->PIO_OER |= (1 << 27); // Enable as output	
- 	
- 	/*for (float t = 3.5f; t <= 7.4f; t += 0.01f) {
- 		Velocity = calculate_s_curve_velocity_acceleration(t);
- 		frequency = 40 * Velocity;
- 		processLineFollowing();
- 		delay_ms(50);
- 	}
-	decelerationScurve(calculate_time_from_velocity_deceleration(Velocity));
-	*/
-}
 	
-				
-void enableSwitches(void){
-	//switches
-	//table1
-	PIOD->PIO_PER |= (1 << 6); // Enable PIO control
-	PIOD->PIO_ODR |= (1 << 6);
-	
-	//done serving
-	PIOD->PIO_PER |= (1 << 3); // Enable PIO control
-	PIOD->PIO_ODR |= (1 << 3);
-	
-	//table2
-	PIOD->PIO_PER |= (1 << 2); // Enable PIO control
-	PIOD->PIO_ODR |= (1 << 2);
-}
- 	
+ 	// left motor
+	PIOC->PIO_OER |= (1<<7);     // Enable Output
+	PIOC->PIO_PER |= (1<<7);     // Enable PIO control
+	PIOC->PIO_SODR = (1<<7);  
+	// right motor
+	PIOC->PIO_OER |= (1<<6);     // Enable Output
+	PIOC->PIO_PER |= (1<<6);     // Enable PIO control
+	PIOC->PIO_CODR = (1<<6);  
+	PIOC->PIO_OER |= (1<<17);     // Enable Output
+	PIOC->PIO_PER |= (1<<17);     // Enable PIO control
 
-void table1(void){
-	for (float t = 3.5f; t <= 7.4f; t += 0.01f) {
-		Velocity = calculate_s_curve_velocity_acceleration(t);
-		frequency = 40 * Velocity;
-		processLineFollowing();
-		delay_ms(50);
-
-		if (((readLeftSensor() == 1) || (readRightSensor() == 1)) && (Done==0)){
-			junction_count=junction_count+1;
-			Done=1;
-			decelerationScurve(calculate_time_from_velocity_deceleration(Velocity));
-			delay_ms(6000);
-			break;
-			
-		}
-
-		if ((obstacle_flag) && (Done==0)){
-			decelerationScurve(calculate_time_from_velocity_deceleration(Velocity));
-			while(obstacle_flag){
-				
-			}
-			break;
-		}
-	}
-	
-	table1_notdone();
-	
+	table_acceleration();
+	leftTurn();
+	Done=0;
+	junction_count=0;
+	table_acceleration_return();
 }
+ 
+ void table_acceleration(void){
+	 temp=0;
+	 temp_2=0;
+	 for (float t = 3.0f; t <= 8.0f; t += 0.1f) {
+		 Velocity = calculate_s_curve_velocity_acceleration(t);
+		 frequency = 40 * Velocity;
+		 processLineFollowing();
+		 //mdrive((40*Velocity),(40*Velocity));
+		 delay_ms(25);
+		 
+		 if (((readLeftSensor() == 1) && (readRightSensor() == 1)) && (Done==0)){
+			 junction_count=junction_count+1;
+			 if(junction_count==2){
+				 decelerationScurve(calculate_time_from_velocity_deceleration(Velocity));
+				 Done=1;
+			 }
+			 
+			 delay_ms(3000);
+		 }
+		 
+	 }
+	 table_acceleration_2();
+ }
 
-void table1_notdone(void){
-	if((Done==0) && (Velocity>(VMAX/2))){
-		frequency = 40 * Velocity;
-		processLineFollowing();
-		
-		if ((obstacle_flag) && (Done==0)){
-			decelerationScurve(calculate_time_from_velocity_deceleration(Velocity));
-			while(obstacle_flag){
-			}
-			if(Done==0){
-				table1();
-			}
-		}
-		
-		else if (((readLeftSensor() == 1) || (readRightSensor() == 1)) && (Done==0)){
-			junction_count=junction_count+1;
-			Done=1;
-		}
-		decelerationScurve(calculate_time_from_velocity_deceleration(Velocity));
-		
-	}
-	
-	else if((Done==0) && (Velocity<(VMAX/2))){
-		table1();
-	}
-}
+ void table_acceleration_2(void){
+	 while ((temp==0) && (Done == 0) &&  ((readLeftSensor() == 0) && (readRightSensor() == 0))) {
+		 frequency = 40 * Velocity;
+		 processLineFollowing();
+		 
+		 if ((obstacle_flag) && (Done==0)){
+			 decelerationScurve(calculate_time_from_velocity_deceleration(Velocity));
+			 
+			 while(temp_2==0){
+				 for (int i = 0; i <= 56000000; i++) {
+					 if(i==56000000){
+						 if(!(obstacle_flag)){
+							 temp_2=1;
+						 }
+						 
+					 }
+				 }
+			 }
+			 temp=1;
+		 }
+		 if (((readLeftSensor() == 1) || (readRightSensor() == 1)) && (Done==0)){
+			 junction_count=junction_count+1;
+			 if(junction_count==2){
+				 
+				 decelerationScurve(calculate_time_from_velocity_deceleration(Velocity));
+				 temp=1;
+				 Done=1;
+			 }
+			 
+			 delay_ms(3000);
+			 
+			 
+		 }
+	 }
+	 if(Done==0){
+		 table_acceleration();
+	 }
+ }
+ 
+ void table_acceleration_return(void){
+	 temp=0;
+	 temp_2=0;
+	 for (float t = 3.0f; t <= 8.0f; t += 0.1f) {
+		 Velocity = calculate_s_curve_velocity_acceleration(t);
+		 frequency = 40 * Velocity;
+		 processLineFollowing();
+		 //mdrive((40*Velocity),(40*Velocity));
+		 delay_ms(25);
+		 
+		 if (((readLeftSensor() == 1) && (readRightSensor() == 1)) && (Done==0)){
+			 junction_count=junction_count+1;
+			 if(junction_count==3){
+				 decelerationScurve(calculate_time_from_velocity_deceleration(Velocity));
+				 Done=1;
+			 }
+			 
+			 delay_ms(2000);
+		 }
+		 
+	 }
+	 table_acceleration_return_2();
+ }
+ 
+ void table_acceleration_return_2(void){
+	 while ((temp==0) && (Done == 0) &&  ((readLeftSensor() == 0) && (readRightSensor() == 0))) {
+		 frequency = 40 * Velocity;
+		 processLineFollowing();
+		 
+		 if ((obstacle_flag) && (Done==0)){
+			 decelerationScurve(calculate_time_from_velocity_deceleration(Velocity));
+			 
+			 while(temp_2==0){
+				 for (int i = 0; i <= 56000000; i++) {
+					 if(i==56000000){
+						 if(!(obstacle_flag)){
+							 temp_2=1;
+						 }
+						 
+					 }
+				 }
+			 }
+			 temp=1;
+		 }
+		 if (((readLeftSensor() == 1) || (readRightSensor() == 1)) && (Done==0)){
+			 junction_count=junction_count+1;
+			 if(junction_count==3){
+				 
+				decelerationScurve(calculate_time_from_velocity_deceleration(Velocity));
+				temp=1;
+				Done=1;
+			 }
+			 
+			 delay_ms(2000);
+			 
+			 
+		 } 
+	 }
+	 if(Done==0){
+		 table_acceleration_return();
+	 }
+ }
+ 
+ void leftTurn(void){
+	 rightTurn1();
+	 rightTurn2();
+ }
+
+ void rightTurn(void){
+	 leftTurn1();
+	 leftTurn2();
+ }

@@ -14,40 +14,42 @@ void enableSensorArray(void);
 
 void enableSensorArray(void){
 	///sensor array///
-	/// left(6) 18(5) 17(4) 16(3) 15(2) right(1) ///
+	/// left(20) 19 18 15 14 right(13) ///
+	/// PD7 PD6 PD5 PD2 PD1 PD0 ///
 	
-	// right inductive proximity sensor
-	PIOD->PIO_PER |= (1 << 4);	//Enable PIO control
-	PIOD->PIO_ODR |= (1 << 4);	//Disable output register --> Enbale as Input
+	PMC->PMC_PCER0 |= (1 << ID_PIOD);
 	
-	// left inductive proximity sensor
-	PIOA->PIO_PER |= (1 << 10);
-	PIOA->PIO_ODR |= (1 << 10);//Disable output register --> Enbale as Input
+	//13
+	PIOD->PIO_PER |= (1 << 0);	//Enable PIO control
+	PIOD->PIO_ODR |= (1 << 0);	//Disable output register --> Enbale as Input
 	
-	//other sensors
+	//14
+	PIOD->PIO_PER |= (1 << 1);
+	PIOD->PIO_ODR |= (1 << 1); //Disable output register --> Enbale as Input
 	
-	//digital pin 18
-	PIOA->PIO_PER |= (1 << 11); // Enable PIO control
-	PIOA->PIO_ODR |= (1 << 11); // Disable output  --> Enbale as Input
+	//15
+	PIOD->PIO_PER |= (1 << 2); // Enable PIO control
+	PIOD->PIO_ODR |= (1 << 2); // Disable output  --> Enbale as Input
 	
-	//digital pin 17
-	PIOA->PIO_PER |= (1 << 12);// Enable PIO Control
-	PIOA->PIO_ODR |= (1 << 12);// Disable output  --> Enbale as Input
+	//18
+	PIOD->PIO_PER |= (1 << 5); // Enable PIO Control
+	PIOD->PIO_ODR |= (1 << 5); // Disable output  --> Enbale as Input
 	
-	//digital pin 16
-	PIOA->PIO_PER |= (1 << 13);//Enable PIO Control
-	PIOA->PIO_ODR |= (1 << 13);//Disable output  --> Enbale as Input
+	//19
+	PIOD->PIO_PER |= (1 << 6); // Enable PIO Control
+	PIOD->PIO_ODR |= (1 << 6); // Disable output  --> Enbale as Input
 	
-	//digital pin 15
-	PIOD->PIO_PER |= (1 << 5);//Enable PIO Control
-	PIOD->PIO_ODR |= (1 << 5);//Disable output register --> Enbale as Input
+	//20
+	PIOD->PIO_PER |= (1 << 7);// Enable PIO Control
+	PIOD->PIO_ODR |= (1 << 7);// Disable output register --> Enbale as Input
+	
 }
 
 //reading sensor values
 int readRightSensor(void){
-	return ((PIOD->PIO_PDSR & (1 << 4))!=0);
+	return ((PIOD->PIO_PDSR & (1 << 0))!=0);
 }
 
 int readLeftSensor(void){
-	return ((PIOA->PIO_PDSR & (1 << 10))!=0);
+	return ((PIOD->PIO_PDSR & (1 << 7))!=0);
 }
