@@ -1,4 +1,4 @@
-#include <stdint.h>
+﻿#include <stdint.h>
 #include "sam3xa.h"
 #include <asf.h>
 #include <math.h>
@@ -191,59 +191,59 @@ void decelerationScurve_left_turn2(void){
 	mdrive(0,0);
 }
 
- void rightTurn1(void) {
-	 enablePWMPeripheral();
-	 accelerationScurve_right_turn1();
-	 decelerationScurve_right_turn1();
+void rightTurn1(void) {
+	enablePWMPeripheral();
+	accelerationScurve_right_turn1();
+	decelerationScurve_right_turn1();
 }
- 
- void leftTurn1(void) {
-	 enablePWMPeripheral();
-	 accelerationScurve_left_turn1();
-	 decelerationScurve_left_turn1();
- }
- 
- void rightTurn2(void) {
-	 // left motor
-	 PIOC->PIO_OER |= (1<<7);     // Enable Output
-	 PIOC->PIO_PER |= (1<<7);     // Enable PIO control
-	 PIOC->PIO_CODR = (1<<7);
-	 // right motor
-	 PIOC->PIO_OER |= (1<<6);     // Enable Output
-	 PIOC->PIO_PER |= (1<<6);     // Enable PIO control
-	 PIOC->PIO_SODR = (1<<6);
-	 enablePWMPeripheral();
-	 accelerationScurve_right_turn2();
-	 decelerationScurve_right_turn2();
-	 
-	 // left motor
-	 PIOC->PIO_OER |= (1<<7);     // Enable Output
-	 PIOC->PIO_PER |= (1<<7);     // Enable PIO control
-	 PIOC->PIO_SODR = (1<<7);
-	 // right motor
-	 PIOC->PIO_OER |= (1<<6);     // Enable Output
-	 PIOC->PIO_PER |= (1<<6);     // Enable PIO control
-	 PIOC->PIO_CODR = (1<<6);
- }
- 
+
+void leftTurn1(void) {
+	enablePWMPeripheral();
+	accelerationScurve_left_turn1();
+	decelerationScurve_left_turn1();
+}
+
+void rightTurn2(void) {
+	// left motor
+	PIOC->PIO_OER |= (1<<7);     // Enable Output
+	PIOC->PIO_PER |= (1<<7);     // Enable PIO control
+	PIOC->PIO_CODR = (1<<7);
+	// right motor
+	PIOC->PIO_OER |= (1<<6);     // Enable Output
+	PIOC->PIO_PER |= (1<<6);     // Enable PIO control
+	PIOC->PIO_SODR = (1<<6);
+	enablePWMPeripheral();
+	accelerationScurve_right_turn2();
+	decelerationScurve_right_turn2();
+	
+	// left motor
+	PIOC->PIO_OER |= (1<<7);     // Enable Output
+	PIOC->PIO_PER |= (1<<7);     // Enable PIO control
+	PIOC->PIO_SODR = (1<<7);
+	// right motor
+	PIOC->PIO_OER |= (1<<6);     // Enable Output
+	PIOC->PIO_PER |= (1<<6);     // Enable PIO control
+	PIOC->PIO_CODR = (1<<6);
+}
+
 void leftTurn2(void) {
-	 // left motor
-	 PIOC->PIO_OER |= (1<<7);     // Enable Output
-	 PIOC->PIO_PER |= (1<<7);     // Enable PIO control
-	 PIOC->PIO_CODR = (1<<7);
-	 // right motor
-	 PIOC->PIO_OER |= (1<<6);     // Enable Output
-	 PIOC->PIO_PER |= (1<<6);     // Enable PIO control
-	 PIOC->PIO_SODR = (1<<6);
-	 enablePWMPeripheral();
-	 accelerationScurve_left_turn2();
-	 decelerationScurve_left_turn2();
-	 // left motor
-	 PIOC->PIO_OER |= (1<<7);     // Enable Output
-	 PIOC->PIO_PER |= (1<<7);     // Enable PIO control
-	 PIOC->PIO_CODR = (1<<7);
-	 // right motor
-	 PIOC->PIO_OER |= (1<<6);     // Enable Output
-	 PIOC->PIO_PER |= (1<<6);     // Enable PIO control
-	 PIOC->PIO_SODR = (1<<6);
- }
+	// left motor
+	PIOC->PIO_OER |= (1<<7);     // Enable Output
+	PIOC->PIO_PER |= (1<<7);     // Enable PIO control
+	PIOC->PIO_CODR = (1<<7);
+	// right motor
+	PIOC->PIO_OER |= (1<<6);     // Enable Output
+	PIOC->PIO_PER |= (1<<6);     // Enable PIO control
+	PIOC->PIO_SODR = (1<<6);
+	enablePWMPeripheral();
+	accelerationScurve_left_turn2();
+	decelerationScurve_left_turn2();
+	// left motor
+// 	PIOC->PIO_OER |= (1<<7);     // Enable Output
+// 	PIOC->PIO_PER |= (1<<7);     // Enable PIO control
+// 	PIOC->PIO_CODR = (1<<7);
+// 	// right motor
+// 	PIOC->PIO_OER |= (1<<6);     // Enable Output
+// 	PIOC->PIO_PER |= (1<<6);     // Enable PIO control
+// 	PIOC->PIO_SODR = (1<<6);
+}

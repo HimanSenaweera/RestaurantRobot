@@ -54,7 +54,7 @@ void enablePWMPeripheral(void) {
 	PMC->PMC_PCER1 = (1 << (36 - 32)); // Enabling PWM peripheral
 	
 	PIOC->PIO_PDR = (1 << LEFT_MOTOR_PU); // Disable PIO control for PC2
-	PIOC->PIO_ABSR |= (1 << LEFT_MOTOR_PU); // Select peripheral B for PC2 (PWM)+
+	PIOC->PIO_ABSR |= (1 << LEFT_MOTOR_PU); // Select peripheral B for PC2 (PWM)
 	
 	
 	PIOC->PIO_PDR = (1 << RIGHT_MOTOR_PU); // Disable PIO control for PC4
@@ -85,20 +85,20 @@ void mdrive(uint32_t desired_left, uint32_t desired_right) {
 	PWM->PWM_CH_NUM[0].PWM_CDTY = periodTicks_right / 2; // Set duty cycle to 50% for RIGHT motor
 	
 	if(desired_left==0 && desired_right==0){
-		PWM->PWM_DIS = (1 << 0);
-		PWM ->PWM_DIS = (1 << 1);
+		PWM->PWM_DIS = (1 << 0); // disable Channel 0
+		PWM ->PWM_DIS = (1 << 1); // disable Channel 1
 
 	}
 	else if (desired_left==0 ){
-		PWM->PWM_DIS = (1 << 1);
-		PWM->PWM_ENA = (1 << 0);
+		PWM->PWM_DIS = (1 << 1);  // disable Channel 1
+		PWM->PWM_ENA = (1 << 0);  // Enable Channel 0
 	}
 	else if (desired_right==0){
-		PWM->PWM_ENA = (1 << 1); // Enable Channel 0
-		PWM ->PWM_DIS = (1 << 0);
+		PWM->PWM_ENA = (1 << 1); // Enable Channel 1
+		PWM ->PWM_DIS = (1 << 0);// disable Channel 0
 	}
 	else{
 		PWM->PWM_ENA = (1 << 0); // Enable Channel 0
-		PWM->PWM_ENA = (1 << 1); // Enable Channel 1
+		PWM->PWM_ENA = (1 << 1); // Enable Channel 1
 	}
 }
